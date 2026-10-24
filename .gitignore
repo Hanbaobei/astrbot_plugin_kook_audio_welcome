@@ -210,6 +210,3 @@ __marimo__/
 data/
 audio_cache/
 stream_cache/
-
-# 本地测试音频，不随插件分发
-welcome.wav
