@@ -1,0 +1,2 @@
+# 插件运行时依赖（AstrBot 本体已内置 aiohttp，此处用于显式声明）
+aiohttp>=3.8

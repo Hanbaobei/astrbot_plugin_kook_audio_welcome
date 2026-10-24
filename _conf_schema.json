@@ -1,0 +1,116 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用语音欢迎",
+    "hint": "关闭后不再响应用户进入语音频道的事件，管理指令仍然可用。",
+    "default": true
+  },
+  "target_channel_id": {
+    "type": "string",
+    "description": "目标语音频道 ID",
+    "hint": "留空表示自动跟随事件中的语音频道；填写后只对该频道生效。",
+    "default": ""
+  },
+  "audio_source": {
+    "type": "string",
+    "description": "欢迎音频来源",
+    "hint": "上传：使用下方「上传的欢迎音频」；链接：使用下方「欢迎音频链接」；本地路径：使用下方「欢迎音频文件路径」。所选来源不可用时，会自动回退到数据目录下的 welcome.*。",
+    "options": ["upload", "url", "path", "auto"],
+    "labels": [
+      "上传的音频文件",
+      "网络链接（URL）",
+      "本地文件路径（高级）",
+      "自动查找 welcome.*"
+    ],
+    "default": "upload"
+  },
+  "welcome_audio_files": {
+    "type": "file",
+    "description": "上传的欢迎音频",
+    "hint": "点击按钮上传音频文件（支持多选与拖拽）。列表中的第一个可用文件生效，文件保存在插件数据目录，插件更新不会被清空。",
+    "file_types": ["mp3", "wav", "m4a", "ogg", "opus", "flac", "aac", "webm"],
+    "default": []
+  },
+  "welcome_audio_url": {
+    "type": "string",
+    "description": "欢迎音频链接",
+    "hint": "填写 MP3 / WAV 等音频的 http(s) 直链，例如 https://example.com/welcome.mp3。首次播放时会自动下载到插件数据目录并缓存，之后离线也能播放。",
+    "default": ""
+  },
+  "welcome_audio": {
+    "type": "string",
+    "description": "欢迎音频文件路径（高级）",
+    "hint": "服务器上音频文件的绝对路径，适合不方便上传的场景。也可用 /语音欢迎上传 在聊天中直接上传。",
+    "default": ""
+  },
+  "volume": {
+    "type": "int",
+    "description": "播放音量",
+    "hint": "0 - 100，100 表示原始音量，0 表示静音。",
+    "default": 100,
+    "slider": {
+      "min": 0,
+      "max": 100,
+      "step": 1
+    }
+  },
+  "cooldown": {
+    "type": "int",
+    "description": "触发冷却（秒）",
+    "hint": "播放结束后的等待时间。KOOK 要求退出语音频道后等待 2 - 3 秒才能重新加入，建议不低于 3 秒。",
+    "default": 3,
+    "slider": {
+      "min": 0,
+      "max": 60,
+      "step": 1
+    }
+  },
+  "start_delay": {
+    "type": "int",
+    "description": "加入频道后等待（秒）",
+    "hint": "空频道里第一个进入的人，客户端往往需要一点时间才能建立语音接收。机器人加入后先等待这段时间再播放，可避免对方一句都听不到。",
+    "default": 2,
+    "slider": {
+      "min": 0,
+      "max": 10,
+      "step": 1
+    }
+  },
+  "leave_delay": {
+    "type": "int",
+    "description": "播放结束后停留（秒）",
+    "hint": "音频播完后继续推送静音流的时长，避免 RTP 流一断、服务端就丢弃缓冲中的音频。静音会预先拼进音频文件，整段播放只使用一条 RTP 流。建议 2 秒。",
+    "default": 2,
+    "slider": {
+      "min": 0,
+      "max": 10,
+      "step": 1
+    }
+  },
+  "ffmpeg_path": {
+    "type": "string",
+    "description": "FFmpeg 路径",
+    "hint": "默认从系统 PATH 查找 ffmpeg；也可以填写可执行文件的绝对路径，例如 C:\\ffmpeg\\bin\\ffmpeg.exe。",
+    "default": "ffmpeg"
+  },
+  "diagnostic_log": {
+    "type": "bool",
+    "description": "写入诊断日志",
+    "hint": "把运行流程与错误写入 data/plugin_data/astrbot_plugin_kook_audio_welcome/logs/kook_audio_welcome.log，便于排查问题。日志不包含 Bot Token。",
+    "default": true
+  },
+  "bot_token": {
+    "type": "string",
+    "description": "KOOK Bot Token（可选）",
+    "hint": "留空时自动读取 AstrBot 中 KOOK 适配器的 Token。仅在插件独立使用语音接口时才需要填写。",
+    "default": "",
+    "secret": true
+  },
+  "voice_password": {
+    "type": "string",
+    "description": "语音频道密码（可选）",
+    "hint": "仅当目标语音频道设置了密码时填写，会作为 password 参数传给 /voice/join。",
+    "default": "",
+    "secret": true
+  }
+}

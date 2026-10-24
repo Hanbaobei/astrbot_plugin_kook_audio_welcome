@@ -1,0 +1,19 @@
+# 与 AstrBot 主仓库保持一致的 Ruff 配置
+# https://github.com/AstrBotDevs/AstrBot/blob/master/pyproject.toml
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = [
+    "F",     # Pyflakes
+    "W",     # pycodestyle warnings
+    "E",     # pycodestyle errors
+    "ASYNC", # flake8-async
+    "C4",    # flake8-comprehensions
+    "Q",     # flake8-quotes
+]
+ignore = [
+    "E501",     # 行长度由 formatter 处理
+    "ASYNC230", # 插件中少量同步文件读写可以接受
+    "ASYNC240",
+]
