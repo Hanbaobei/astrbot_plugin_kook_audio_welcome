@@ -395,7 +395,16 @@ AstrBot/data/plugin_data/astrbot_plugin_kook_audio_welcome/logs/kook_audio_welco
 
 ```text
 astrbot_plugin_kook_audio_welcome/
-├── main.py              # 插件入口：事件挂接、KOOK 接口、FFmpeg 推流、指令
+├── main.py              # 插件入口：生命周期、事件分发与全部指令 handler
+├── constants.py         # 全局常量与时序参数
+├── utils.py             # 类型转换、子进程执行、ffprobe 封装
+├── kook_api.py          # KOOK 开放平台 HTTP 客户端（语音接口 + 音频下载）
+├── ffmpeg.py            # FFmpeg RTP 推流命令拼装
+├── config.py            # 配置读取、目录解析与诊断日志（ConfigMixin）
+├── hooking.py           # KOOK 适配器事件挂接（HookingMixin）
+├── playback.py          # 播放队列与推流流程（PlaybackMixin）
+├── resources.py         # Token / 音频来源 / FFmpeg 资源解析（ResourcesMixin）
+├── commands.py          # 指令参数解析与上传音频处理（CommandsMixin）
 ├── _conf_schema.json    # 插件配置模式（WebUI 可视化配置 + 文件上传）
 ├── metadata.yaml        # 插件元数据
 ├── ruff.toml            # 与 AstrBot 主仓库一致的 Ruff 配置
@@ -419,8 +428,8 @@ data/plugin_data/astrbot_plugin_kook_audio_welcome/
 ### 代码风格
 
 ```bash
-ruff format main.py
-ruff check main.py
+ruff format .
+ruff check .
 ```
 
 ### 测试建议
