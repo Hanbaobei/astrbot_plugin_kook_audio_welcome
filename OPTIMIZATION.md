@@ -62,7 +62,7 @@
 | M-1 | `ffprobe` 结果没有缓存，播放/状态/上传各跑一次 | `probe_audio_duration()`、`_play_welcome()`、`cmd_status()` | 按 `(path, mtime, size)` 缓存到字典，配置变更时清空 |
 | M-2 | 目录扫描无缓存：`_candidate_dirs` / `_auto_audio_path` / `_find_audio_by_name` | `main.py:740`、`main.py:1493`、`main.py:1473` | 缓存 + TTL（如 30 秒）；`get_astrbot_data_path` 只解析一次 |
 | M-3 | `audio_cache/`、`audio/`、`stream_cache/` 只增不减 | `_url_cache_path`、`_write_chat_audio`、`_prepare_stream_audio` | 按「最近 N 个 / 总大小上限」清理；删除时同步移出 `welcome_audio_files` |
-| M-4 | 单文件约 2200 行，纯逻辑与网络/IO/命令混杂，`tests/` 为空 | `main.py` | 拆 `kook_api.py` / `audio_source.py` / `streaming.py` / `commands.py`；纯函数直接 pytest |
+| M-4 | 单文件约 2200 行，纯逻辑与网络/IO/命令混杂，`tests/` 为空 | `main.py` | ✅ 已拆分：`constants.py` / `utils.py` / `kook_api.py` / `ffmpeg.py` / `config.py` / `hooking.py` / `playback.py` / `resources.py` / `commands.py`；`tests/` 仍为空，纯函数 pytest 未做 |
 | M-5 | 没有 CI | 仓库根目录 | GitHub Actions：`ruff check`、`ruff format --check`、`pytest -q` |
 | M-6 | 版本号两处维护（`main.py:45` 与 `metadata.yaml`） | — | 运行时读 `metadata.yaml` 或构建时注入；`metadata.yaml` 补 `repo` / `tags` |
 
@@ -76,7 +76,7 @@
 | F-2 | 播放策略 | `max_duration` 截断、`loop` 次数、只欢迎新成员、多音频随机 |
 | F-3 | 运维指令 | `/语音欢迎日志 [N]` 回传日志尾部、`/语音欢迎统计`（播放/失败/平均耗时）；用 `filter.command_group` 收拢子指令 |
 | F-4 | 配置项 | `guild_whitelist`、`max_audio_seconds`、音量改 dB 语义、`source_fallback` 开关 |
-| F-5 | 文档 | README 中的 40s/45s、2-3s、1MB 等常量与代码重复，改为集中表格；新增 `CHANGELOG.md` |
+| F-5 | 文档 | README 中的 40s/45s、2-3s、1MB 等常量与代码重复，改为集中表格（未做）；✅ 已新增 `CHANGELOG.md` |
 | F-6 | Windows | spawn FFmpeg 时加 `creationflags=CREATE_NO_WINDOW`，服务化部署避免弹窗 |
 
 ---
@@ -104,9 +104,22 @@
 
 ---
 
-## 六、变更记录
+## 六、待用户测试确认
+
+以下改动已完成代码，但按项目约定未执行编译 / 测试，需要用户在真实环境确认：
+
+| 改动 | 确认要点 |
+| --- | --- |
+| `main.py` 拆分为 9 个模块（mixin 组合） | 插件能正常加载、无 ImportError；日志出现「插件加载」「已挂接 KOOK 适配器」；`/语音欢迎` 状态正常；成员进入频道能完整走完加入 → 播放 → 离开；重载插件后不重复播放 |
+
+对应回归项见「五、回归测试清单」第 1、2、5、9、11 条。
+
+---
+
+## 七、变更记录
 
 | 版本 | 时间 | 内容 |
 | --- | --- | --- |
+| 未发布 | — | 拆分 `main.py` 为 9 个模块；新增 `CHANGELOG.md`；补 `AGENTS.md` 项目约束 |
 | v1.4.3 | 2026-10-25 | 修复 B-1 ～ B-8：回调泄漏、误踢残留连接、配置静默失败、坏音频空 join、保活窗口、被踢中止、上传覆盖、卸载残留 |
 | v1.4.2 | 2026-10-24 | 修复 P0-1 ～ P0-4：来源指令落盘、无鉴权下载、单条 RTP 流尾部静音、状态只读解析 |
