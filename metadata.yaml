@@ -2,7 +2,7 @@ name: astrbot_plugin_kook_audio_welcome # 插件唯一识别名，以 astrbot_pl
 display_name: KOOK 语音欢迎 # 插件在管理面板中的展示名
 desc: 成员进入 KOOK 语音频道时，机器人自动加入频道播放欢迎音频，播放完成后离开。支持上传文件 / 网络链接 / 本地路径三种音频来源。
 short_desc: KOOK 语音频道成员进入时自动播放欢迎语
-version: v1.4.3 # 插件版本号
+version: v1.4.4 # 插件版本号
 author: HanZai # 作者
 support_platforms: # 声明支持的平台适配器
   - kook
