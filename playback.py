@@ -41,6 +41,7 @@ class _PlayRequest:
     channel_id: str
     user_id: str = ""
     guild_id: str = ""
+    nickname: str = ""
     reason: str = "event"
 
 
@@ -119,7 +120,8 @@ class PlaybackMixin:
     async def _play_welcome(self, request: _PlayRequest) -> None:
         """一次完整的播放流程，由 worker 调用，异常不应逃逸。"""
         channel_id = request.channel_id
-        self._trace(f"开始播放流程：channel={channel_id} reason={request.reason}")
+        who = request.nickname or request.user_id
+        self._trace(f"开始播放流程：channel={channel_id} user={who} reason={request.reason}")
 
         if (
             time.monotonic() - self._last_finished < self._cooldown

@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+## v1.4.4
+
+### 新增
+
+- 成员进入语音频道时补充查询成员昵称：``joined_channel`` 事件只带 ``user_id``，现在额外调用 ``/api/v3/user/view``（带 ``guild_id`` 取服务器昵称）写入日志与诊断日志；查询失败、超时或成员已不在服务器时回退到 ``user_id``，不影响播放。
+- 昵称结果按「服务器 + 用户」缓存 600 秒（上限 500 条，超限整体清空），短时间内重复进出不再请求接口。
+
 ### 重构
 
 - 将原本约 2200 行的 `main.py` 拆分为 `constants.py`、`utils.py`、`kook_api.py`、`ffmpeg.py`、`config.py`、`hooking.py`、`playback.py`、`resources.py`、`commands.py` 九个模块，`main.py` 只保留插件类、生命周期与事件分发，功能与配置项不变。

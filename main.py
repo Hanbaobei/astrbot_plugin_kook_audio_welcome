@@ -47,6 +47,8 @@ from astrbot.api.star import Context, Star, register
 from .commands import CommandsMixin
 from .config import ConfigMixin
 from .constants import (
+    NICKNAME_CACHE_MAX,
+    NICKNAME_CACHE_TTL,
     PLUGIN_NAME,
     PLUGIN_VERSION,
     SOURCE_LABELS,
@@ -95,6 +97,8 @@ class KookAudioWelcomePlugin(
         self._ffmpeg_task: asyncio.Task | None = None
 
         self._hooks: dict[str, _Hook] = {}
+        # 成员昵称缓存：key 为 "guild_id:user_id"，value 为 (昵称, 取到的时间)
+        self._nickname_cache: dict[str, tuple[str, float]] = {}
         self._bot_id = ""
         self._voice_channel = ""
         self._playing = False
@@ -161,6 +165,36 @@ class KookAudioWelcomePlugin(
     # KOOK 事件分发（由 hooking.py 的包装回调调用）
     # ------------------------------------------------------------------ #
 
+    async def _resolve_nickname(self, user_id: str, guild_id: str) -> str:
+        """查询进入频道成员的昵称（服务器昵称）。
+
+        加入事件只带 ``user_id``，昵称需要额外调用 ``/user/view``。结果按
+        「服务器 + 用户」缓存 ``NICKNAME_CACHE_TTL`` 秒；查询失败、超时或用户已
+        不在服务器时返回空字符串，调用方回退到 ``user_id``，不影响播放。
+        """
+        key = f"{guild_id}:{user_id}"
+        cached = self._nickname_cache.get(key)
+        if cached and time.monotonic() - cached[1] < NICKNAME_CACHE_TTL:
+            return cached[0]
+
+        token = self._resolve_token()
+        if not token:
+            return ""
+        try:
+            data = await asyncio.wait_for(
+                self._api.get_user(token, user_id, guild_id), timeout=3
+            )
+        except (KookApiError, asyncio.TimeoutError):
+            self._trace(f"查询成员昵称失败：user={user_id} guild={guild_id}")
+            return ""
+
+        nickname = to_text(data.get("nickname")) or to_text(data.get("username"))
+        if nickname:
+            if len(self._nickname_cache) >= NICKNAME_CACHE_MAX:
+                self._nickname_cache.clear()
+            self._nickname_cache[key] = (nickname, time.monotonic())
+        return nickname
+
     async def _on_kook_event(self, adapter: Any, data: Any) -> None:
         """处理包装回调捕获到的每一条 KOOK 网关事件。"""
         # 退出事件先处理：即使配置被中途关闭，也要能停止正在进行的推流
@@ -205,13 +239,23 @@ class KookAudioWelcomePlugin(
             self._trace("忽略：仍在冷却时间内")
             return
 
+        nickname = await self._resolve_nickname(user_id, guild_id)
         self._enqueue(
-            _PlayRequest(channel_id=channel_id, user_id=user_id, guild_id=guild_id)
+            _PlayRequest(
+                channel_id=channel_id,
+                user_id=user_id,
+                guild_id=guild_id,
+                nickname=nickname,
+            )
         )
         logger.info(
-            f"[KOOK语音欢迎] 用户 {user_id} 加入语音频道 {channel_id}，准备播放欢迎音频"
+            f"[KOOK语音欢迎] 成员 {nickname or user_id}（{user_id}）加入语音频道 "
+            f"{channel_id}，准备播放欢迎音频"
         )
-        self._trace(f"已加入播放队列：channel={channel_id} user={user_id}")
+        self._trace(
+            f"已加入播放队列：channel={channel_id} user={user_id} "
+            f"nickname={nickname or '-'}"
+        )
 
     @filter.on_platform_loaded()
     async def _on_platform_loaded(self) -> None:

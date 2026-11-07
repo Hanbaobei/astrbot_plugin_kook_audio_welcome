@@ -15,7 +15,7 @@ from __future__ import annotations
 # --------------------------------------------------------------------------- #
 
 PLUGIN_NAME = "astrbot_plugin_kook_audio_welcome"
-PLUGIN_VERSION = "v1.4.3"
+PLUGIN_VERSION = "v1.4.4"
 
 # 诊断日志单文件上限，超过后轮转为 .log.1
 LOG_MAX_BYTES = 1024 * 1024
@@ -29,6 +29,11 @@ KOOK_API_BASE = "https://www.kookapp.cn/api/v3"
 KOOK_SYSTEM_MESSAGE_TYPE = 255
 KOOK_VOICE_JOINED = "joined_channel"
 KOOK_VOICE_EXITED = "exited_channel"
+
+# 成员昵称缓存时长（秒）：昵称只在进房时需要，短时间内重复进出直接复用
+NICKNAME_CACHE_TTL = 600
+# 昵称缓存条数上限，超过后整体清空，避免长期运行无限增长
+NICKNAME_CACHE_MAX = 500
 
 # --------------------------------------------------------------------------- #
 # 语音推流时序

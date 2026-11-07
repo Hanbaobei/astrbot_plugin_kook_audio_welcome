@@ -200,6 +200,15 @@ class KookApi:
             params={"target_id": channel_id},
         )
 
+    async def get_user(
+        self, token: str, user_id: str, guild_id: str = ""
+    ) -> dict[str, Any]:
+        """查询用户信息；带 ``guild_id`` 时 ``nickname`` 为该服务器的昵称。"""
+        params: dict[str, Any] = {"user_id": user_id}
+        if guild_id:
+            params["guild_id"] = guild_id
+        return await self.request("GET", "/user/view", token, params=params)
+
     async def get_me(self, token: str) -> dict[str, Any]:
         """查询机器人自身信息（用于拿到 bot_id）。"""
         return await self.request("GET", "/user/me", token)
