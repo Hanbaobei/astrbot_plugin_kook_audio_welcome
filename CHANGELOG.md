@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## v1.4.5
+
+### 修复
+
+- 统一版本号：`metadata.yaml` 与 `constants.py` 中的版本号同为 `v1.4.5`。此前 v1.4.4 只提升了 `metadata.yaml`，`constants.py` 仍是 `v1.4.3`，插件状态指令会显示旧版本。
+
 ## v1.4.4
 
 ### 新增
