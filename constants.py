@@ -10,12 +10,29 @@ https://developer.kookapp.cn/doc/http/voice
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import yaml
+
 # --------------------------------------------------------------------------- #
 # 插件标识
 # --------------------------------------------------------------------------- #
 
 PLUGIN_NAME = "astrbot_plugin_kook_audio_welcome"
-PLUGIN_VERSION = "v1.4.5"
+
+
+def _read_plugin_version() -> str:
+    """版本号只在 metadata.yaml 中维护，代码里不重复定义。"""
+    metadata = Path(__file__).resolve().parent / "metadata.yaml"
+    try:
+        data = yaml.safe_load(metadata.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return ""
+    version = data.get("version") if isinstance(data, dict) else None
+    return str(version or "").strip()
+
+
+PLUGIN_VERSION = _read_plugin_version()
 
 # 诊断日志单文件上限，超过后轮转为 .log.1
 LOG_MAX_BYTES = 1024 * 1024

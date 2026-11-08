@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## v1.4.6
+
+### 重构
+
+- 版本号统一由 `metadata.yaml` 定义：代码中不再硬编码 `PLUGIN_VERSION`，改为启动时读取 `metadata.yaml` 的 `version` 字段，插件注册版本、`/语音欢迎` 状态显示与下载 UA 全部自动跟随。
+
 ## v1.4.5
 
 ### 修复
